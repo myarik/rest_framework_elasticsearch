@@ -7,13 +7,10 @@ from rest_framework_elasticsearch.es_filters import (
     ElasticFieldsRangeFilter, ElasticSearchFilter)
 from rest_framework_elasticsearch.es_views import ElasticAPIView
 from .test_data import DataDocType, DATA
+from .utils import get_search_ids
 
 
 rf = APIRequestFactory()
-
-
-def get_search_ids(search):
-    return [int(item.meta.id) for item in search[:len(DATA)].execute()]
 
 
 @pytest.mark.parametrize('dataset, expected', [
