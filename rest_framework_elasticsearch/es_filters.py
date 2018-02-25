@@ -12,9 +12,13 @@ from elasticsearch_dsl import Q
 
 from rest_framework import filters
 from rest_framework.settings import api_settings
-from rest_framework.compat import coreapi, coreschema
 
 from .es_validators import field_validator
+
+try:
+    from rest_framework.compat import coreapi, coreschema
+except ImportError:
+    coreapi = coreschema = None
 
 
 ORDER_PATTERN = re.compile(r'(\?|[-+])?([.\w]+$)')
@@ -69,7 +73,7 @@ class ElasticOrderingFilter(filters.OrderingFilter, BaseEsFilterBackend):
             return self.get_default_valid_fields(queryset, view, context)
         return [self.validation(field) for field in fields]
 
-    def remove_invalid_fields(self, queryset, fields, view, request):
+    def remove_invalid_fields(self, queryset, fields, view, request=None):
         """Remove not allowed ordering field."""
         ordering_fields = list()
         valid_fields = self.get_valid_fields(queryset,

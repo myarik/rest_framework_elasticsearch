@@ -1,3 +1,6 @@
+# -*- coding: utf-8 -*-
+from __future__ import unicode_literals
+
 import copy
 
 import pytest
@@ -19,7 +22,7 @@ class TestBaseElasticSerializer:
 
     def setup_method(self):
         self.serializer = BaseElasticSerializer()
-        self.serializer.Meta = type('Meta', tuple(), {})
+        self.serializer.Meta = type(str('Meta'), tuple(), {})
 
     def test_es_instance(self):
         with pytest.raises(NotImplementedError):
@@ -56,7 +59,7 @@ class TestElasticSerializer:
 
     def setup_method(self):
         self.serializer = ElasticSerializer()
-        self.serializer.Meta = type('Meta', tuple(), {})
+        self.serializer.Meta = type(str('Meta'), tuple(), {})
         self.serializer.Meta.es_model = DataDocType
 
     def test_get_es_instace_pk(self):
@@ -80,7 +83,7 @@ class TestElasticModelSerializer:
 
     def setup_method(self):
         self.serializer = ElasticModelSerializer()
-        self.serializer.Meta = type('Meta', tuple(), {})
+        self.serializer.Meta = type(str('Meta'), tuple(), {})
         self.serializer.Meta.es_model = DataDocType
 
     def test_get_es_instace_pk(self):

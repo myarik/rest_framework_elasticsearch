@@ -1,3 +1,6 @@
+# -*- coding: utf-8 -*-
+from __future__ import unicode_literals
+
 import pytest
 from django.core.exceptions import ImproperlyConfigured
 from rest_framework.test import APIRequestFactory
@@ -101,7 +104,7 @@ class TestElasticAPIView:
     def test_get_es_search(self, es_client):
         view = self.create_view(es_client)
         expected = Search(using=es_client, index='test', doc_type=DataDocType)
-        assert view.get_es_search() == expected
+        assert view.get_es_search().to_dict() == expected.to_dict()
 
     @pytest.mark.parametrize('query_params, expected', [
         (
@@ -173,7 +176,7 @@ class TestElasticAPIView:
         expected = [item.to_dict() for item in result]
         assert view.es_representation(result) == expected
 
-    def test_get_queryset(self, es_client):
+    def test_get_queryset(self, search, es_client):
         view = self.create_view(es_client)
         view.request = rf.get('/test/')
         view.request.query_params = {

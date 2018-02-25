@@ -1,3 +1,6 @@
+# -*- coding: utf-8 -*-
+from __future__ import unicode_literals
+
 import os
 
 import pytest
@@ -27,6 +30,7 @@ def pytest_configure():
                 }
             },
         ],
+        ALLOWED_HOSTS=['localhost', 'testserver']
     )
 
     django.setup()
@@ -39,13 +43,6 @@ def es_client():
     return connection
 
 
-@pytest.fixture
-def write_client(client):
-    yield client
-    client.indices.delete('test-*', ignore=404)
-    client.indices.delete_template('test-template', ignore=404)
-
-
 @pytest.fixture(scope='session')
 def es_data_client(es_client):
     # create mappings
@@ -53,7 +50,7 @@ def es_data_client(es_client):
     # load data
     bulk(es_client, DATA, raise_on_error=True, refresh=True)
     yield es_client
-    es_client.indices.delete('test')
+    es_client.indices.delete('test-*', ignore=404)
 
 
 @pytest.fixture
