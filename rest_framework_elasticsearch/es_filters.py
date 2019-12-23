@@ -54,6 +54,9 @@ class BaseEsFilterBackend(object):
         assert coreschema is not None, 'coreschema must be installed to use `get_schema_fields()`'
         return []
 
+    def get_schema_operation_parameters(self, view):
+        return []
+
 
 class ElasticOrderingFilter(filters.OrderingFilter, BaseEsFilterBackend):
 
@@ -139,6 +142,21 @@ class ElasticFieldsFilter(BaseEsFilterBackend):
 
         return fields
 
+    def get_schema_operation_parameters(self, view):
+        res = []
+        for item in self.get_es_filter_fields(view):
+            res.append({
+                'name': item.label,
+                'required': False,
+                'in': 'query',
+                'description': force_text(item.description),
+                'schema': {
+                    'title': force_text(item.label),
+                    'type': 'string',
+                    },
+                })
+        return res
+
 
 class ElasticFieldsRangeFilter(ElasticFieldsFilter):
     range_description = _('A range filter term.')
@@ -203,6 +221,33 @@ class ElasticFieldsRangeFilter(ElasticFieldsFilter):
 
         return fields
 
+    def get_schema_operation_parameters(self, view):
+        res = []
+        for item in self.get_es_range_filter_fields(view):
+            res.append({
+                'name': 'from_' + item.label,
+                'required': False,
+                'in': 'query',
+                'description': force_text(item.description or self.range_description),
+                'schema': {
+                    'title': force_text(item.label),
+                    'type': 'string',
+                    },
+                })
+            res.append({
+                'name': 'to_' + item.label,
+                'required': False,
+                'in': 'query',
+                'description': force_text(item.description or self.range_description),
+                'schema': {
+                    'title': force_text(item.label),
+                    'type': 'string'
+                    },
+                })
+
+        return res
+
+
 class ElasticSearchFilter(BaseEsFilterBackend):
     search_param = api_settings.SEARCH_PARAM
     search_should_match = '75%'
@@ -257,6 +302,18 @@ class ElasticSearchFilter(BaseEsFilterBackend):
                 )
             )
         ]
+
+    def get_schema_operation_parameters(self, view):
+        return [{
+            'name': self.search_param,
+            'required': False,
+            'in': 'query',
+            'description': force_text(self.search_description),
+            'schema': {
+                'title': force_text(self.search_title),
+                'type': 'string',
+                },
+            }]
 
 
 GEO_BOUNDING_BOX = 'geo_bounding_box'
@@ -365,7 +422,21 @@ class ElasticGeoBoundingBoxFilter(BaseEsFilterBackend):
             )
         ]
 
+    def get_schema_operation_parameters(self, view):
+        return [{
+            'name': self.geo_bounding_box_param,
+            'required': False,
+            'in': 'query',
+            'description': force_text(self.geo_bounding_box_description),
+            'schema': {
+                'title': force_text(self.geo_bounding_box_title),
+                'type': 'string',
+                },
+            }]
+
+
 GEO_DISTANCE = 'geo_distance'
+
 
 class ElasticGeoDistanceFilter(BaseEsFilterBackend):
     geo_distance_param = ''
@@ -437,3 +508,15 @@ class ElasticGeoDistanceFilter(BaseEsFilterBackend):
                 )
             )
         ]
+
+    def get_schema_operation_parameters(self, view):
+        return [{
+            'name': self.geo_distance_param,
+            'required': False,
+            'in': 'query',
+            'description': force_text(self.geo_distance_description),
+            'schema': {
+                'title': force_text(self.geo_distance_title),
+                'type': 'string',
+                },
+            }]

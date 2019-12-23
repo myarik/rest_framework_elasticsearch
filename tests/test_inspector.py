@@ -3,12 +3,12 @@ from __future__ import unicode_literals
 
 import pytest
 
-from rest_framework_elasticsearch.es_views import ElasticAPIView
+from rest_framework_elasticsearch import es_pagination
 from rest_framework_elasticsearch.es_filters import (
     ElasticFieldsFilter, ElasticOrderingFilter, ElasticFieldsRangeFilter,
     ElasticSearchFilter, ESFieldFilter)
-from rest_framework_elasticsearch import es_pagination
 from rest_framework_elasticsearch.es_inspector import EsAutoSchema
+from rest_framework_elasticsearch.es_views import ElasticAPIView
 from tests.conftest import DRF_VERSION
 
 
@@ -74,3 +74,69 @@ class TestEsAutoSchema:
         assert sorted(field_names) == ['description', 'from_date', 'limit',
                                        'offset', 'ordering', 'score', 'search',
                                        'to_date']
+
+
+@pytest.mark.skipif(DRF_VERSION < (3, 10),
+                    reason="OpenApi schema generation added in DRF 3.10")
+class TestEsOpenApiAutoSchema:
+    def setup_method(self):
+        from rest_framework_elasticsearch.es_inspector import EsOpenApiAutoSchema
+        self.inspector = EsOpenApiAutoSchema()
+
+    def test_get_es_filter_fields(self):
+        view = ElasticAPIView()
+        view.es_filter_backends = (ElasticFieldsFilter,)
+        view.es_filter_fields = (
+            ESFieldFilter('score'),
+            ESFieldFilter('description')
+        )
+        self.inspector.view = view
+        operation = self.inspector.get_operation('/', 'GET')
+        parameter_names = [parameter['name'] for parameter in operation['parameters']]
+        assert sorted(parameter_names) == ['description', 'score']
+
+    def test_get_es_filter_fields_with_range_filters(self):
+        view = ElasticAPIView()
+        view.es_filter_backends = (ElasticFieldsFilter,
+                                   ElasticFieldsRangeFilter)
+        view.es_filter_fields = (
+            ESFieldFilter('score'),
+            ESFieldFilter('description')
+        )
+        view.es_range_filter_fields = (ESFieldFilter('date'),)
+        self.inspector.view = view
+
+        operation = self.inspector.get_operation('/', 'GET')
+        parameter_names = [parameter['name'] for parameter in operation['parameters']]
+        assert sorted(parameter_names) == ['description', 'from_date', 'score', 'to_date']
+
+    def test_get_es_pagination_fields(self):
+        view = ElasticAPIView()
+        view.es_filter_backends = ()
+        view.es_pagination_class = es_pagination.ElasticLimitOffsetPagination
+        self.inspector.view = view
+
+        operation = self.inspector.get_operation('/', 'GET')
+        parameter_names = [parameter['name'] for parameter in operation['parameters']]
+        assert sorted(parameter_names) == ['limit', 'offset']
+
+    def test_get_link(self):
+        view = ElasticAPIView()
+        view.es_filter_backends = (ElasticFieldsFilter,
+                                   ElasticFieldsRangeFilter,
+                                   ElasticOrderingFilter,
+                                   ElasticSearchFilter)
+        view.es_filter_fields = (
+            ESFieldFilter('score'),
+            ESFieldFilter('description')
+        )
+        view.es_range_filter_fields = (ESFieldFilter('date'),)
+        view.es_pagination_class = es_pagination.ElasticLimitOffsetPagination
+        self.inspector.view = view
+        operation = self.inspector.get_operation('/', 'GET')
+        parameter_names = [parameter['name'] for parameter in operation['parameters']]
+
+        assert sorted(parameter_names) == [
+            'description', 'from_date', 'limit', 'offset', 'ordering', 'score', 'search',
+            'to_date',
+            ]
