@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 from abc import ABCMeta, abstractmethod
 
-import six
 
+from .utils import six
 
 @six.add_metaclass(ABCMeta)
 class BaseESFieldValidator:

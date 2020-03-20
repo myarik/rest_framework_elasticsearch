@@ -4,9 +4,8 @@ from __future__ import absolute_import, unicode_literals
 from functools import reduce
 import re
 
-from django.utils import six
-from django.utils.encoding import force_text
-from django.utils.translation import ugettext_lazy as _
+from django.utils.encoding import force_text, force_str
+from django.utils.translation import gettext_lazy as _
 
 from elasticsearch_dsl import Q
 
@@ -14,6 +13,7 @@ from rest_framework import filters
 from rest_framework.settings import api_settings
 
 from .es_validators import field_validator
+from .utils import six
 
 try:
     from rest_framework.compat import coreapi, coreschema
@@ -131,8 +131,8 @@ class ElasticFieldsFilter(BaseEsFilterBackend):
                 required=False,
                 location='query',
                 schema=coreschema.String(
-                    title=force_text(item.label),
-                    description=force_text(item.description or self.filter_description)
+                    title=force_str(item.label),
+                    description=force_str(item.description or self.filter_description)
                 )
             )
             fields.append(field)
@@ -185,8 +185,8 @@ class ElasticFieldsRangeFilter(ElasticFieldsFilter):
                 required=False,
                 location='query',
                 schema=coreschema.String(
-                    title=force_text(item.label),
-                    description=force_text(item.description or self.range_description)
+                    title=force_str(item.label),
+                    description=force_str(item.description or self.range_description)
                 )
             )
             fields.append(field)
@@ -195,8 +195,8 @@ class ElasticFieldsRangeFilter(ElasticFieldsFilter):
                 required=False,
                 location='query',
                 schema=coreschema.String(
-                    title=force_text(item.label),
-                    description=force_text(item.description or self.range_description)
+                    title=force_str(item.label),
+                    description=force_str(item.description or self.range_description)
                 )
             )
             fields.append(field)
@@ -252,8 +252,8 @@ class ElasticSearchFilter(BaseEsFilterBackend):
                 required=False,
                 location='query',
                 schema=coreschema.String(
-                    title=force_text(self.search_title),
-                    description=force_text(self.search_description)
+                    title=force_str(self.search_title),
+                    description=force_str(self.search_description)
                 )
             )
         ]
