@@ -1,6 +1,7 @@
 # Elasticsearch for Django REST Framework
 
 
+
 [![Build Status](https://travis-ci.org/josemlp91/django-rest-elasticsearch.svg?branch=master)](https://travis-ci.org/josemlp91/django-rest-elasticsearch)
 
 ## About
