@@ -1,9 +1,7 @@
 #!/bin/sh
 
 set -o errexit
-set -o pipefail
 set -o nounset
-
 
 elasticsearch_ready() {
     ES_HOST=$(echo $TEST_ES_SERVER | cut -d ":" -f 1)
@@ -25,8 +23,5 @@ done
 echo "*** Cluster health"
 curl -sX GET "${TEST_ES_SERVER}/_cluster/health"
 echo "*** Running"
-
-echo "*** Running Test"
-pytest src/tests/
 
 exec "$@"
