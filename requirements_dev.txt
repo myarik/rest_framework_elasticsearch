@@ -3,3 +3,4 @@ pytest-runner
 pytest
 coreapi
 pytz
+tox

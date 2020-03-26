@@ -15,7 +15,7 @@ services:
       context: ./
       dockerfile: ./compose/python/Dockerfile
     volumes:
-      - .:/app/src:ro
+      - .:/app/src
 
     depends_on:
       - elasticsearch

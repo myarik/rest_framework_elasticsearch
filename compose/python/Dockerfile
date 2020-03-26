@@ -1,9 +1,6 @@
-FROM python:3.6-alpine
+FROM dgladkov/snakepit:latest
 
-RUN apk update \
-  && apk add --virtual build-deps gcc python3-dev musl-dev file-dev \
-  && apk add curl 
-
+RUN apt-get update && apt-get install -y python-pip netcat curl
 
 COPY requirements.txt /requirements.txt
 COPY requirements_dev.txt /requirements_dev.txt
@@ -19,5 +16,5 @@ RUN pip install -r /requirements_dev.txt
 ENV LANG en_GB.UTF-8
 ENV TEST_ES_SERVER=elasticsearch:9200
 
-WORKDIR /app
+WORKDIR /app/src
 ENTRYPOINT ["/entrypoint"]
