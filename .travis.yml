@@ -16,8 +16,10 @@ matrix:
 install:
   - pip install --upgrade pip
   - pip install tox-travis
+  - pip install more-itertools==5.0.0
+  - pip install Jinja2==2.11.1
 before_script:
-  - pip install -U Jinja2==2.11.1
+
   - sleep 30 # elasticsearch starting time
 script:
   - tox
